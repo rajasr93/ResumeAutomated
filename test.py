@@ -11,4 +11,7 @@ dfs = [pd.read_csv(os.path.join('data', f)) for f in files]
 df = pd.concat(dfs)
 print(df.shape)
 
+# only need to keep title, company, location and description columns
+df = df[['title', 'company', 'location', 'description']]
+
 df.to_csv('data/finalized_data/data_analyst_jobs.csv', index=False)
