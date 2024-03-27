@@ -1,18 +1,14 @@
-import anthropic
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
 
-client = anthropic.Anthropic(
-    # defaults to os.environ.get("ANTHROPIC_API_KEY")
-    api_key="my-api-key",
-)
+# from the data folder, reading all the files starting with jobs:
+files = [f for f in os.listdir('data') if f.startswith('jobs')]
+# reading all the files into a list of dataframes
+dfs = [pd.read_csv(os.path.join('data', f)) for f in files]
+# concatenating all the dataframes into one
+df = pd.concat(dfs)
+print(df.shape)
 
-message = client.messages.create(
-    model="claude-3-opus-20240229",
-    max_tokens=1000,
-    temperature=0.0,
-    system="Respond only in Yoda-speak.",
-    messages=[
-        {"role": "user", "content": "How are you today?"}
-    ]
-)
-
-print(message.content)
+df.to_csv('data/finalized_data/data_analyst_jobs.csv', index=False)
