@@ -14,4 +14,4 @@ print(df.shape)
 # only need to keep title, company, location and description columns
 df = df[['title', 'company', 'location', 'description']]
 
-df.to_csv('data/finalized_data/data_analyst_jobs.csv', index=False)
+df.to_csv('finalized_data/data_enginner_jobs.csv', index=False)
