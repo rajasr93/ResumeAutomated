@@ -1,6 +1,4 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import os
 
 # from the data folder, reading all the files starting with jobs:
