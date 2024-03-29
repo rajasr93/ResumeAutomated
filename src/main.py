@@ -56,7 +56,7 @@ class JobDataPipeline:
             print("No data to save.")
 
 def main():
-    json_file_path = "../data/city_title.json"
+    json_file_path = "scity_title.json"
     with open(json_file_path, 'r') as file:
         data = json.load(file)
     # give a sample size less than 18 to avoid any errors sorry about that
