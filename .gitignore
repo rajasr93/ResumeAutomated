@@ -1,5 +1,5 @@
-claude-env/
 api-key.txt
 data/
 cenv/
 .ipynb_checkpoints/
+__pycache__/

@@ -42,6 +42,7 @@ class DataAnnotator:
                 system="You are an ATS system and you have to parse the following text and then you have to extract the hard skills, soft skills and key words from the text. The hard skills, soft skills and keywords should be in the form of a Python dictionary with keys being 'hard_skills', 'soft_skills' and 'key_words', and values being the Python list of all those skills, without any other information or text.",
                 messages=[{"role": "user", "content": description}]
             )
+
             content_blocks = message.content
             if content_blocks and isinstance(content_blocks, list):
                 content_block_text = content_blocks[0].text
@@ -59,12 +60,23 @@ class DataAnnotator:
             print("Client not initialized. Cannot process description.")
             return {}
 
-if __name__ == "__main__":
-    api_key_path = 'api-key.txt'
-    annotator = DataAnnotator(api_key_path)
-    description = "We are looking for a software engineer with experience in Python, Java, and SQL. The ideal candidate should have strong problem-solving skills and be a team player."
-    skills = annotator.process_description(description)
-    print(skills)
+    def extract_skills(self):
+        if self.df is not None:
+            self.df['hard_skills'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('hard_skills', []))
+            self.df['soft_skills'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('soft_skills', []))
+            self.df['key_words'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('key_words', []))
+            return self.df
+        else:
+            print("Data not loaded. Cannot extract skills.")
+            return {}
+        
+    def get_annotated_data(self):
+        if self.df is not None:
+            return self.df
+        else:
+            print("No annotated data available.")
+            return {}
+
 
 
 

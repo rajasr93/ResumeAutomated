@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from tqdm import tqdm
 
 class JobDataCleaner:
     def __init__(self, dataframe):
@@ -15,16 +16,26 @@ class JobDataCleaner:
         """
         self.dataframe.dropna(subset=['description'], inplace=True)
 
-    def clean_descriptions(self):
+    def clean_descriptions(self, pbar=None):
         """
-        Cleans the 'description' column by removing special characters and
-        newline characters, preparing it for text processing.
+        Cleans the 'description' column by removing special characters, newline characters,
+        and converting multiple spaces to a single space, preparing it for text processing.
+        Optionally updates a progress bar (pbar) if provided.
         """
-        pattern = r'[^\w\s]'
-        self.dataframe['description'] = self.dataframe['description'].str.lower()
-        self.dataframe['description'] = self.dataframe['description'].apply(
-            lambda x: re.sub(pattern, '', x).replace('\n', ' ')
-        )
+        if self.dataframe is not None:
+            pattern = r'[^\w\s]'
+            for i in self.dataframe.index:
+                # Perform cleaning on each description
+                description = self.dataframe.at[i, 'description'].lower()
+                description = re.sub(pattern, '', description).replace('\n', ' ')
+                description = re.sub(r'\s+', ' ', description).strip()
+                self.dataframe.at[i, 'description'] = description
+                
+                # Update the progress bar if it's provided
+                if pbar is not None:
+                    pbar.update(1)
+        else:
+            print("Dataframe not loaded. Cannot clean descriptions.")
 
     def remove_duplicates(self):
         """
