@@ -27,7 +27,7 @@ class JobDataPipeline:
             cleaner.clean_descriptions(pbar)
         cleaner.remove_duplicates()
         cleaned_data = cleaner.get_cleaned_data()
-        print(cleaned_data.head(5))
+        print(cleaned_data)
 
         print("\nAnnotating job data...")
         try:
@@ -50,13 +50,19 @@ class JobDataPipeline:
         else:
             print("No data to save.")
 
-if __name__ == "__main__":
+def main():
     json_file_path = "../data/city_title.json"
     with open(json_file_path, 'r') as file:
         data = json.load(file)
+    sample_size = 10
     cities, job_titles = data['cities'], data['job_titles']
     api_key_path = os.path.join(os.path.dirname(__file__), 'api-key.txt')
-    job_data_pipeline = JobDataPipeline(cities, job_titles, api_key_path, sample_size=30)
+    job_data_pipeline = JobDataPipeline(cities, job_titles, api_key_path, sample_size=sample_size)
     job_data_pipeline.run()
+
+if __name__ == "__main__":
+    main()
+
+
 
 

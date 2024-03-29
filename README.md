@@ -7,10 +7,13 @@ How to run this file:
 3.  - Activate the virtual environment for macOS: `source cenv/bin/activate`
     - Activate the virtual environment for Windows: `cenv\Scripts\activate`
 4. Install the requirements: `pip install -r requirements.txt`
-5. Run the file: `python concat.py` or `python3 source/concat.py` to generate the concatenated JD file.
 
-### STEP -1
+### STEP -1: Data Collection/Scrapping, Cleaning and Annotation
+1. Go to the `src` directory: `cd src`
+2. Run the `main.py` file: `python3 main.py`
+3. This will save the scrapped, cleaned and annotated data in the `data` directory as `annotated_data.csv`, if the annotation process `failed` the `data` will be saved as `job_data_cleaned.csv`.
 
-1. Anotating data using the ClaudeAI API: `https://www.anthropic.com/api`
-2. Run the `python3 source/data_annotation.py` file to generate the `hard skills`, `soft skills`, and `key words` for a given job description.
-3.  
+### STEP -2: Training the Model
+
+
+
