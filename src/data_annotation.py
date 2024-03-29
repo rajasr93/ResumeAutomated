@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import ast
 import anthropic
+from tqdm import tqdm
 
 class DataAnnotator:
     def __init__(self, api_key_path):
@@ -61,18 +62,39 @@ class DataAnnotator:
     def annotate_data(self):
         failed_annotations = []
         if self.df is not None:
-            annotation = self.df['description'].apply(self.process_description)
-            # Identify failed annotations
-            failed_annotations = [i for i, x in enumerate(annotation) if x == "annotation_failed"]
-            annotation = annotation.apply(lambda x: x if isinstance(x, dict) else {})
-            self.df['hard_skills'] = annotation.apply(lambda x: x.get('hard_skills', []))
-            self.df['soft_skills'] = annotation.apply(lambda x: x.get('soft_skills', []))
-            self.df['keywords'] = annotation.apply(lambda x: x.get('key_words', []))
+            annotation = []
+            total_rows = len(self.df)
+            pbar = tqdm(total=total_rows, desc="Annotating Descriptions", unit="description")
+
+            for idx, row in self.df.iterrows():
+                try:
+                    result = self.process_description(row['description'])
+                    if isinstance(result, dict):
+                        annotation.append(result)
+                    else:
+                        failed_annotations.append(idx)
+                        annotation.append({})
+                except Exception as e:
+                    print(f"Error annotating row {idx}: {e}")
+                    failed_annotations.append(idx)
+                    annotation.append({})
+                pbar.update(1)  # Update the progress bar
+
+            pbar.close()  # Close the progress bar
+
+            if annotation:
+                self.df['hard_skills'] = [x.get('hard_skills', []) for x in annotation]
+                self.df['soft_skills'] = [x.get('soft_skills', []) for x in annotation]
+                self.df['keywords'] = [x.get('key_words', []) for x in annotation]
+            else:
+                print("No annotations could be generated.")
+
             return self.df, failed_annotations
         else:
             print("Data not loaded. Cannot annotate data.")
             return None, failed_annotations
-
+    
+    
     def save_annotated_data(self, output_path):
         if self.df is not None:
             self.df.to_csv(output_path, index=False)

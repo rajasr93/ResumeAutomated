@@ -11,9 +11,8 @@ class JobScraper:
         self.results_wanted_per_combination = results_wanted_per_combination
         self.job_data = []
 
-    def scrape_jobs(self):
+    def scrape_jobs(self, pbar=None):
         total_combinations = len(self.cities) * len(self.search_terms)
-        pbar = tqdm(total=total_combinations, desc="Scraping Jobs", unit="combination", dynamic_ncols=True, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]")
         for city in self.cities:
             for search_term in self.search_terms:
                 print(f"Scraping {search_term} jobs for {city}...")
@@ -30,8 +29,6 @@ class JobScraper:
                 self.job_data.extend(jobs[['title', 'company', 'location', 'description']].to_dict('records'))
                 pbar.update(1)  # Update the progress bar
                 print(f"progress: {pbar.n}/{pbar.total}")
-
-        pbar.close()  # Close the progress bar
 
     def create_dataframe(self):
         self.jobs_df = pd.DataFrame(self.job_data)
