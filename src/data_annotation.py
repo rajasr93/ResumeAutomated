@@ -1,5 +1,6 @@
+import os
 import pandas as pd
-import json
+import ast
 import anthropic
 
 class DataAnnotator:
@@ -29,7 +30,9 @@ class DataAnnotator:
 
     def load_data(self, data):
         if isinstance(data, pd.DataFrame):
-            self.df = data.dropna().reset_index(drop=True)
+            self.df = data.copy()
+            self.df = self.df.dropna()
+            self.df = self.df.reset_index(drop=True)
         else:
             print("Invalid data format. Please provide a pandas DataFrame.")
 
@@ -42,40 +45,40 @@ class DataAnnotator:
                 system="You are an ATS system and you have to parse the following text and then you have to extract the hard skills, soft skills and key words from the text. The hard skills, soft skills and keywords should be in the form of a Python dictionary with keys being 'hard_skills', 'soft_skills' and 'key_words', and values being the Python list of all those skills, without any other information or text.",
                 messages=[{"role": "user", "content": description}]
             )
-
             content_blocks = message.content
             if content_blocks and isinstance(content_blocks, list):
                 content_block_text = content_blocks[0].text
-                try:
-                    json_str_start = content_block_text.find('{')
-                    dict_str = content_block_text[json_str_start:]
-                    skills_dict = json.loads(dict_str)
-                    return skills_dict
-                except json.JSONDecodeError:
-                    print(f"Failed to parse response: {content_block_text}")
-                    return {}
+                json_str_start = content_block_text.find('{')
+                dict_str = content_block_text[json_str_start:]
+                skills_dict = ast.literal_eval(dict_str)
+                return skills_dict
             else:
                 return {}
         else:
             print("Client not initialized. Cannot process description.")
             return {}
 
-    def extract_skills(self):
+    def annotate_data(self):
+        failed_annotations = []
         if self.df is not None:
-            self.df['hard_skills'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('hard_skills', []))
-            self.df['soft_skills'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('soft_skills', []))
-            self.df['key_words'] = self.df['description'].apply(self.process_description).apply(lambda x: x.get('key_words', []))
-            return self.df
+            annotation = self.df['description'].apply(self.process_description)
+            # Identify failed annotations
+            failed_annotations = [i for i, x in enumerate(annotation) if x == "annotation_failed"]
+            annotation = annotation.apply(lambda x: x if isinstance(x, dict) else {})
+            self.df['hard_skills'] = annotation.apply(lambda x: x.get('hard_skills', []))
+            self.df['soft_skills'] = annotation.apply(lambda x: x.get('soft_skills', []))
+            self.df['keywords'] = annotation.apply(lambda x: x.get('key_words', []))
+            return self.df, failed_annotations
         else:
-            print("Data not loaded. Cannot extract skills.")
-            return {}
-        
-    def get_annotated_data(self):
+            print("Data not loaded. Cannot annotate data.")
+            return None, failed_annotations
+
+    def save_annotated_data(self, output_path):
         if self.df is not None:
-            return self.df
+            self.df.to_csv(output_path, index=False)
+            print(f"Annotated data saved to: {output_path}")
         else:
-            print("No annotated data available.")
-            return {}
+            print("Data not loaded. Cannot save annotated data.")
 
 
 

@@ -22,6 +22,7 @@ class JobScraper:
                     country_indeed=self.country_indeed,
                     description_format=self.description_format,
                     description=True  # Include job descriptions
+
                 )
                 print(f"Found {len(jobs)} {search_term} jobs for {city}")
                 self.job_data.extend(jobs[['title', 'company', 'location', 'description']].to_dict('records'))
