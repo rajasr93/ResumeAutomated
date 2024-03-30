@@ -7,6 +7,14 @@ How to run this file:
 3.  - Activate the virtual environment for macOS: `source cenv/bin/activate`
     - Activate the virtual environment for Windows: `cenv\Scripts\activate`
 4. Install the requirements: `pip install -r requirements.txt`
+5. Create a `city_title.json` file in the data directory with the following format:
+
+    ```json
+    {
+        "city": ["city1", "city2", "city3"],
+        "title": ["title1", "title2", "title3"]
+    }
+    ```
 
 ### STEP -1: Data Collection/Scrapping, Cleaning and Annotation
 1. Go to the `src` directory: `cd src`

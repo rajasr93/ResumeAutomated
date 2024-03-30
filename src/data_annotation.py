@@ -94,14 +94,12 @@ class DataAnnotator:
             print("Data not loaded. Cannot annotate data.")
             return None, failed_annotations
     
-    
     def save_annotated_data(self, output_path):
         if self.df is not None:
             self.df.to_csv(output_path, index=False)
             print(f"Annotated data saved to: {output_path}")
         else:
             print("Data not loaded. Cannot save annotated data.")
-
 
 
 
