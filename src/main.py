@@ -73,7 +73,7 @@ class JobDataPipeline:
             #        self.annotate_data(cleaned_data)
             #else:
             #    logging.error("Scraping step failed. Skipping cleaning and annotation.")
-            data_folder = "../data/job_data_cleaned.csv"
+            data_folder = "../data/job_data_cleaned2.csv"
             cleaned_data = pd.read_csv(data_folder)
             if cleaned_data is not None:
                 self.annotate_data(cleaned_data)

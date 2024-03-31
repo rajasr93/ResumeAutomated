@@ -3,8 +3,8 @@ import pandas as pd
 import ast
 import anthropic
 from tqdm import tqdm
-import time
 import logging
+import time
 
 class DataAnnotator:
     def __init__(self, api_key_path, sleep_time=1, output_path='annotated_data.csv', max_retries=3, initial_delay=1):
@@ -47,7 +47,7 @@ class DataAnnotator:
         if self.client:
             message = self.client.messages.create(
                 model="claude-3-haiku-20240307",
-                max_tokens=300,
+                max_tokens=1000,
                 temperature=0.0,
                 system="You are an ATS system and you have to parse the following text and then you have to extract the hard skills, soft skills and key words from the text. The hard skills, soft skills and keywords should be in the form of a Python dictionary with keys being 'hard_skills', 'soft_skills' and 'key_words', and values being the Python list of all those skills, without any other information or text.",
                 messages=[{"role": "user", "content": description}]
@@ -94,9 +94,9 @@ class DataAnnotator:
                         # Save the annotated data point to CSV
                         row.to_frame().T.to_csv(self.output_path, mode='a', header=not os.path.exists(self.output_path), index=False)
                         break  # Break out of the retry loop if successful
-
-                    except anthropic.ApiException as e:
-                        if e.status_code == 429:
+                    except Exception as e:  # Using a more general Exception class
+                        logging.error(f"Error annotating row {idx}: {str(e)}")
+                        if "rate limit" in str(e).lower():  # Check if the error message is about rate limiting
                             retry_count += 1
                             if retry_count < self.max_retries:
                                 delay = self.initial_delay * (2 ** (retry_count - 1))
@@ -105,17 +105,13 @@ class DataAnnotator:
                             else:
                                 logging.error(f"Max retries exceeded for row {idx}. Skipping annotation.")
                                 failed_annotations.append(idx)
-                                break 
                         else:
-                            logging.error(f"Error annotating row {idx}: {e}")
                             failed_annotations.append(idx)
-                            break
-                    except Exception as e:
-                        logging.error(f"Error annotating row {idx}: {e}")
-                        failed_annotations.append(idx)
-                        break 
-                pbar.update(1) 
-            pbar.close() 
+                        break  # Break out of the retry loop for other errors
+
+                pbar.update(1)  # Update the progress bar
+
+            pbar.close()  # Close the progress bar
 
             return failed_annotations
         else:
