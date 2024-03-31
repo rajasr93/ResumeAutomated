@@ -66,15 +66,19 @@ class JobDataPipeline:
     
     def run(self):
         try:
-            jobs_df = self.scrape_jobs()
-            if jobs_df is not None:
-                cleaned_data = self.clean_data(jobs_df)
-                if cleaned_data is not None:
-                    self.annotate_data(cleaned_data)
-                else:
-                    logging.error("Cleaning step failed. Skipping annotation.")
+            # jobs_df = self.scrape_jobs()
+            # if jobs_df is not None:
+            #    cleaned_data = self.clean_data(jobs_df)
+            #    if cleaned_data is not None:
+            #        self.annotate_data(cleaned_data)
+            #else:
+            #    logging.error("Scraping step failed. Skipping cleaning and annotation.")
+            data_folder = "../data/job_data_cleaned.csv"
+            cleaned_data = pd.read_csv(data_folder)
+            if cleaned_data is not None:
+                self.annotate_data(cleaned_data)
             else:
-                logging.error("Scraping step failed. Skipping cleaning and annotation.")
+                logging.error("Cleaning step failed. Skipping annotation.")
         except Exception as e:
             logging.error(f"Error during pipeline execution: {e}")
             data_folder = "../data/ind_data"

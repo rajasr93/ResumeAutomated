@@ -5,3 +5,6 @@ anthropic==0.21.3
 jobspy==0.29.0
 ast==0.0.2
 tqdm==4.66.2
+flask==3.0.2
+streamlit
+watchdog
